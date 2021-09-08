@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+
+set -e
+
+main() {
+    local DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+    local PHP_EXT="$1"
+    local PHP_VERSION="$(echo $2 | cut -c-3)"
+    local PHP_DISTRO="$3"
+
+    if [ -z "$PHP_EXT" ] || [ -z "$PHP_VERSION" ] || [ -z "$PHP_DISTRO" ]; then
+        echo "usage: $0 [PHP_EXT] [PHP_VERSION] [PHP_DISTRO]" >&2
+        exit 2
+    fi
+
+    if [ ! "$(cat $DIR/supported-extensions | grep "^$PHP_EXT")" ]; then
+        echo "extension $PHP_EXT is not supported" >&2
+        exit 1
+    fi
+
+    if [ ! "$(cat $DIR/supported-extensions | grep "^$PHP_EXT" | grep " $PHP_VERSION")" ]; then
+        echo "extension $PHP_EXT is not compatible with php v$PHP_VERSION" >&2
+        exit 1
+    fi
+
+    if [ "$(cat $DIR/special-requirements | grep "^$PHP_EXT" | grep " !$PHP_DISTRO")" ]; then
+        echo "extension $PHP_EXT is not compatible with $PHP_DISTRO" >&2
+        exit 1
+    fi
+}
+
+main "$@"

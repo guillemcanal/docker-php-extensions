@@ -1,0 +1,12 @@
+ARG PHP_VERSION
+ARG PHP_DISTRO
+
+FROM php:${PHP_VERSION}-fpm-${PHP_DISTRO}
+
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN set -ex \
+    && chmod +x /usr/local/bin/install-php-extensions \
+    && [ $(command -v apk) ] && { apk -U add fd; apk upgrade; } || true \
+    && [ $(command -v apt-get) ] && { apt-get update; apt-get install -y --no-install-recommends fd-find; ln -s $(which fdfind) /usr/bin/fd; rm -rf /var/lib/apt/lists/*; } || true \
+    && fd . '/' --type f --type l -E '/{tmp,dev,sys,proc,run,etc/apk,var/cache,var/tmp}/*' | sort > /.php.base

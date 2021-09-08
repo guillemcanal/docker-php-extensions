@@ -1,0 +1,18 @@
+ARG PHP_VERSION
+ARG PHP_DISTRO
+ARG DOCKER_REPO
+
+FROM ${DOCKER_REPO}/php:${PHP_VERSION}-${PHP_DISTRO}-build as build
+
+ARG PHP_EXT
+RUN set -ex \
+    && install-php-extensions ${PHP_EXT}
+
+RUN set -ex \
+    && fd . '/' --type f --type l -E '/{tmp,dev,sys,proc,run,etc/apk,var/cache,var/tmp}/*' | sort > /.php.ext \
+    && mkdir /build \
+    && comm -23 /.php.ext /.php.base | xargs -ri cp --parents {} /build
+
+FROM scratch
+
+COPY --from=build /build/ /

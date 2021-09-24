@@ -9,9 +9,9 @@ RUN set -ex \
     && install-php-extensions ${PHP_EXT}
 
 RUN set -ex \
-    && fd . '/' --type f --type l -E '/{tmp,dev,sys,proc,run,etc/apk,var/cache,var/tmp}/*' | sort > /.php.ext \
+    && find / \( -path /dev -o -path /sys -o -path /proc \) -prune -o \( -type f -o -type l \) -print | sort > /.php.ext \
     && mkdir /build \
-    && comm -23 /.php.ext /.php.base | xargs -ri cp --parents {} /build
+    && comm -23 /.php.ext /.php.base | xargs -ri cp --parents {} /build || true
 
 FROM scratch
 

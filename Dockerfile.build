@@ -7,6 +7,4 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 
 RUN set -ex \
     && chmod +x /usr/local/bin/install-php-extensions \
-    && [ $(command -v apk) ] && { apk -U add fd; apk upgrade; } || true \
-    && [ $(command -v apt-get) ] && { apt-get update; apt-get install -y --no-install-recommends fd-find; ln -s $(which fdfind) /usr/bin/fd; rm -rf /var/lib/apt/lists/*; } || true \
-    && fd . '/' --type f --type l -E '/{tmp,dev,sys,proc,run,etc/apk,var/cache,var/tmp}/*' | sort > /.php.base
+    && find / \( -path /dev -o -path /sys -o -path /proc \) -prune -o \( -type f -o -type l \) -print | sort > /.php.base

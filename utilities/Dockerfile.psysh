@@ -1,0 +1,7 @@
+FROM alpine:3.14 as build
+
+RUN wget -q https://psysh.org/psysh -O - > /usr/local/bin/psysh && chmod +x /usr/local/bin/psysh
+
+FROM scratch
+
+COPY --from=build /usr/local/bin/psysh /usr/local/bin/

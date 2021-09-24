@@ -1,0 +1,23 @@
+#/bin/sh
+
+main() {
+    local DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+    local SUPPORTED="$(cat $DIR/data/supported-extensions)"
+    local REQUIREMENTS="$(cat $DIR/data/special-requirements)"
+    local PHP_VERSIONS="$1"
+    local PHP_EXTS="$2"
+
+    for VERSION in $PHP_VERSIONS;do
+        local PHP_VERSION="${VERSION:0:3}"
+        local PHP_DISTRO="${VERSION##*-}"
+        for PHP_EXT in $PHP_EXTS;do
+            [ "$(echo "$SUPPORTED" | grep "^$PHP_EXT ")" ] \
+            && [ "$(echo "$SUPPORTED" | grep "^$PHP_EXT " | grep " $PHP_VERSION")" ] \
+            && [ ! "$(echo "$REQUIREMENTS" | grep "^$PHP_EXT " | grep zts)" ] \
+            && [ ! "$(echo "$REQUIREMENTS" | grep "^$PHP_EXT " | grep " !$PHP_DISTRO")" ] \
+            && echo "$VERSION-ext-$PHP_EXT"
+        done
+    done
+}
+
+main "$@"

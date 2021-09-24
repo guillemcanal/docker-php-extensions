@@ -1,0 +1,13 @@
+FROM alpine:3.14 as build
+
+ENV VERSION=4.26.3
+RUN mkdir -p /build/usr/local/bin \
+    && wget -q https://github.com/symfony/cli/releases/download/v${VERSION}/symfony_linux_amd64.gz -O - | gunzip - > /build/usr/local/bin/symfony \
+    && chmod +x /build/usr/local/bin/symfony \
+    && apk add --no-cache sudo \
+    && apk info -L sudo | tail -n +2 | xargs -ri cp --parents {} /build \
+    && mkdir -p /build/etc/sudoers.d
+
+FROM scratch
+
+COPY --from=build /build /
